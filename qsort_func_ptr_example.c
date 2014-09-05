@@ -11,8 +11,11 @@ int compare_integers(const void *a, const void *b){
 // second - first descending
 }
 // Can also write a function to sort strings on alphabetical ordering
-// use: strcmp and (char *) typecasting & return similar concept 
+// use: strcmp and (char **) typecasting & return similar concept 
 // strcmp value.
+// When qsort passes arguments to the comparator func. it passes pointer
+// to the array elements therefore, pointer to pointers in case of string 
+// arrays. Hence, we need to (char **) typecasting.
 
 int main(){
     // first_array address of first variable.
