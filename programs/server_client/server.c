@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <sys/socket.h>
-#include <arpa/inet.h>
+#include <arpa/inet.h> // For internet address sockadd_in ...
 #include <errno.h>
 
 void
