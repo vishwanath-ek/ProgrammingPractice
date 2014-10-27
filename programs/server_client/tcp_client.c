@@ -8,6 +8,7 @@
 #include <netdb.h>
 #include <stdlib.h>
 #include "tcpio.h"
+#include <unistd.h>
 
 /* Bind the server remote port to the socket for connect ...
  * Need to know the server IP address and PORT to connec to.
@@ -37,6 +38,8 @@ main(){
     }
 
     say(client_socket, "This is a message sent from client ...\n");
+    close(client_socket);
+    free((void *)remote_sockaddr);
 
     return 0;
 }
