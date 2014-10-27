@@ -36,9 +36,15 @@ main(){
     if( conn_val == -1 ){
         error("Connect Error");
     }
-
-    say(client_socket, "This is a message sent from client ...\n");
+    char_struct *data_recv = accept_data(client_socket);
+    if(data_recv->size != 0){
+        printf("Data received from server: %s\n",data_recv->data);
+    }
+    say(client_socket, "This is a message sent from client ...");
     close(client_socket);
+    if(data_recv){
+        free((void *)data_recv);
+    }
     free((void *)remote_sockaddr);
 
     return 0;

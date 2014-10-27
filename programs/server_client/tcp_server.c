@@ -43,10 +43,14 @@ main(){
         }
         if( !fork() ){
             close(parent_socket);
-            say(child_socket, "Hi, You are connected ... Please enter the file path ...\n");
-            char *data_recv = accept_data(child_socket);
-            printf("Data Got from client: %s\n",data_recv);
-            free(data_recv);
+            say(child_socket, "Hi, You are connected ... Please enter the file path ...");
+            char_struct *data_recv = accept_data(child_socket);
+            if(data_recv->size != 0){
+                printf("Data Got from client: %s\n",data_recv->data);
+            }
+            if( data_recv ){
+                free((void *)data_recv);
+            }
             close(child_socket);
             exit(0);
         }

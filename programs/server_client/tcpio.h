@@ -1,5 +1,9 @@
-#define BUFFER_SIZE 512
+typedef struct {
+    int size;
+    char data[512]; 
+}char_struct;
 
 int say(int , const char *);
-char *accept_data(int);
+char_struct *accept_data(int);
 void error( const char *);
+
