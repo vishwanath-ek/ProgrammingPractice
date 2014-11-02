@@ -26,9 +26,7 @@ is_regular_file(const char *file_name){
     strncat(full_path, SHARE_FILES_PATH, sizeof(SHARE_FILES_PATH));
     strncat(full_path, file_name, strlen(file_name));
 
-    printf("Full path %s\n", full_path);
     if( stat(full_path, &info) ){
-        printf("%s\n",file_name);
         error("STAT error");
     }
 
