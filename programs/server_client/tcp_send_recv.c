@@ -30,7 +30,7 @@ accept_data(int child_socket){
     char_struct *data_recv = (char_struct *)malloc(sizeof(char_struct));
     memset(data_recv, 0, sizeof(char_struct));
     int byte_recv = recv(child_socket, data_recv, sizeof(char_struct), 0);
-    printf("byte_recv %d\n", byte_recv);
+//    printf("byte_recv %d\n", byte_recv);
     if( byte_recv == 0 ){
         printf("Connection closed by other party ...\n");
         return NULL;

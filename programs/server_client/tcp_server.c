@@ -10,7 +10,7 @@
 
 static char *files[512]; //Considering only 512 files are there ...
 
-void
+static void
 get_directory_listing(const char *path){
     DIR *dir;
     struct dirent *ent;
@@ -19,9 +19,11 @@ get_directory_listing(const char *path){
           /* print all the files and directories within directory */
         while ( (ent = readdir(dir)) != NULL ){
             //printf ("%s\n", ent->d_name);
-            if( index <= 512 ){
+            if( index < 512 ){
                 if( !strchr(ent->d_name, '~') && strncmp(ent->d_name, ".", 1) && strncmp(ent->d_name, "..", 2) ){
-                    files[index++] = ent->d_name;
+                    files[index] = (char *)malloc(strlen(ent->d_name)*sizeof(char));
+                    strncpy(files[index], ent->d_name, strlen(ent->d_name));
+                    index++;
                 }
             }
         }
@@ -34,17 +36,32 @@ get_directory_listing(const char *path){
     return;
 }
 
-int
+static int
 get_num_of_files(){
     int index = 0;
     while( index < 513 && files[index] != NULL ){
-//      printf("index: %d, %s\n", index, files[index]);
+//        printf("index: %d, %s\n", index, files[index]);
         index++;
     }
     return index;
 }
 
-int 
+static void
+send_all_files(int child_socket, int num_of_sends){
+    int count = 0;
+//    int fin_flag = 0;
+    while( count < num_of_sends ){
+        printf("sending %s...\n", files[count]);
+        say(child_socket, files[count]);
+        free((void *)files[count]);
+        count++;
+        char_struct *data_recv = accept_data(child_socket);
+        free_data_recv(data_recv);
+    }
+    return;
+}
+
+int
 main(){
     int parent_socket = socket(PF_INET, SOCK_STREAM, 0);
     if( parent_socket == -1 ){
@@ -80,22 +97,29 @@ main(){
         }
         if( !fork() ){
             close(parent_socket);
-            say(child_socket, "Hi, You are connected ... Please enter the file path ...");
 
-            get_directory_listing("/home/vishwanath/Documents");
+            free_data_recv(accept_data(child_socket));
+            say(child_socket, "Hi, You are connected ... Please enter the file path ...");
+            free_data_recv(accept_data(child_socket));
+
+            get_directory_listing("/");//home/vishwanath/Documents/");
             int index = get_num_of_files();
             char char_num_files[4];
             sprintf(char_num_files,"%d", index);
             char_num_files[3]='\0'; 
-
+             
             say(child_socket, char_num_files);
+            free_data_recv(accept_data(child_socket));
 
-            char_struct *data_recv = accept_data(child_socket);
+            send_all_files(child_socket, index);
+
+/*            char_struct *data_recv = accept_data(child_socket);
             if(data_recv->size != 0){
                 printf("Data Got from client: %s\n",data_recv->data);
             }
             free_data_recv(data_recv);
-
+*/
+            printf("Closing Child Socket ...\n");
             close(child_socket);
             exit(0);
         }

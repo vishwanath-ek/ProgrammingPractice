@@ -13,7 +13,7 @@
 /* Bind the server remote port to the socket for connect ...
  * Need to know the server IP address and PORT to connec to.
  */
-struct sockaddr_in *
+static struct sockaddr_in *
 use_direct_bind_ip(){
     struct sockaddr_in *client_sockaddr = (struct sockaddr_in *)malloc(sizeof(struct sockaddr_in));
     client_sockaddr->sin_family = PF_INET;
@@ -21,6 +21,21 @@ use_direct_bind_ip(){
     client_sockaddr->sin_addr.s_addr = inet_addr("127.0.0.1");
 
     return client_sockaddr;
+}
+
+static void
+recv_and_display_all_files(int client_socket, int num_of_files){
+    int count = 1; 
+    while( count <= num_of_files ){
+        char_struct *data_recv = accept_data(client_socket);
+        if(data_recv->size != 0){
+            printf("Received: %s\n", data_recv->data);
+        }
+        free_data_recv(data_recv);
+        count++;
+        say(client_socket, "Send next");
+    }
+    return;
 }
 
 int
@@ -36,16 +51,27 @@ main(){
     if( conn_val == -1 ){
         error("Connect Error");
     }
+
+    say(client_socket, "Starting to receive ...");
     char_struct *data_recv = accept_data(client_socket);
     if(data_recv->data[data_recv->size] == '\0'){
-        printf("Data received from server: %s\n",data_recv->data);
+        printf("%s\n",data_recv->data);
     }
     free_data_recv(data_recv);
 
+    say(client_socket, "Got data");
+
     data_recv = accept_data(client_socket);
+    int num_of_files = atoi(data_recv->data); 
+//    printf("Number of files at server: %d\n", num_of_files); 
     free_data_recv(data_recv);
-//    printf("Size: %d, Number of files received from server: %d\n", data_recv->size, atoi(data_recv->data)); 
-    say(client_socket, "This is a message sent from client ...");
+
+    say(client_socket, "Start send");
+
+    recv_and_display_all_files(client_socket, num_of_files);
+
+//    say(client_socket, "This is a message sent from client ...");
+
     close(client_socket);
     free((void *)remote_sockaddr);
 
