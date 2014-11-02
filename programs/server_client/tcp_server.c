@@ -7,8 +7,37 @@
 #include <unistd.h>
 #include <dirent.h> // For directory listing
 #include "tcpio.h"
+#include <sys/stat.h> // For getting file info using stat function
+#include <signal.h>
 
 static char *files[512]; //Considering only 512 files are there ...
+
+static void
+sigint_handler(void){
+    printf("Caught sigint\n");
+    exit(1);
+}
+
+static int
+is_regular_file(const char *file_name){
+    struct stat info;
+    char full_path[500];
+    bzero(full_path, sizeof(full_path));
+    strncat(full_path, SHARE_FILES_PATH, sizeof(SHARE_FILES_PATH));
+    strncat(full_path, file_name, strlen(file_name));
+
+    printf("Full path %s\n", full_path);
+    if( stat(full_path, &info) ){
+        printf("%s\n",file_name);
+        error("STAT error");
+    }
+
+    if( S_ISREG(info.st_mode) ){
+        return 1;
+    }
+
+    return 0;
+}
 
 static void
 get_directory_listing(const char *path){
@@ -16,18 +45,19 @@ get_directory_listing(const char *path){
     struct dirent *ent;
     int index = 0;
     if ( (dir = opendir(path)) != NULL ){
-          /* print all the files and directories within directory */
+          /* traverse all the files and directories within directory */
         while ( (ent = readdir(dir)) != NULL ){
             //printf ("%s\n", ent->d_name);
             if( index < 512 ){
-                if( !strchr(ent->d_name, '~') && strncmp(ent->d_name, ".", 1) && strncmp(ent->d_name, "..", 2) ){
+          //      if( !strchr(ent->d_name, '~') && strncmp(ent->d_name, ".", 1) && strncmp(ent->d_name, "..", 2) ){
+                if( is_regular_file(ent->d_name) ){
                     files[index] = (char *)malloc(strlen(ent->d_name)*sizeof(char));
                     strncpy(files[index], ent->d_name, strlen(ent->d_name));
                     index++;
                 }
             }
         }
-        closedir (dir);
+        closedir(dir);
     }else{
           /* could not open directory */
         error ("Directory Open Error");
@@ -63,6 +93,9 @@ send_all_files(int child_socket, int num_of_sends){
 
 int
 main(){
+    if( catch_signal(SIGINT, sigint_handler) == -1 ){
+        error("Registering signal handler");
+    }
     int parent_socket = socket(PF_INET, SOCK_STREAM, 0);
     if( parent_socket == -1 ){
         error("Error in socket creation");
@@ -102,7 +135,7 @@ main(){
             say(child_socket, "Hi, You are connected ... Please enter the file path ...");
             free_data_recv(accept_data(child_socket));
 
-            get_directory_listing("/");//home/vishwanath/Documents/");
+            get_directory_listing(SHARE_FILES_PATH);
             int index = get_num_of_files();
             char char_num_files[4];
             sprintf(char_num_files,"%d", index);
@@ -113,12 +146,12 @@ main(){
 
             send_all_files(child_socket, index);
 
-/*            char_struct *data_recv = accept_data(child_socket);
+            char_struct *data_recv = accept_data(child_socket);
             if(data_recv->size != 0){
                 printf("Data Got from client: %s\n",data_recv->data);
             }
             free_data_recv(data_recv);
-*/
+
             printf("Closing Child Socket ...\n");
             close(child_socket);
             exit(0);

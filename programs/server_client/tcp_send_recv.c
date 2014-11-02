@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "tcpio.h"
+#include <signal.h>
 
 void
 error( const char *msg ){
@@ -39,6 +40,17 @@ accept_data(int child_socket){
     }
 
     return data_recv;
+}
+
+// Function to register handler(func passed) to OS
+int
+catch_signal(int signal, void (*handler)(int)){
+    struct sigaction action;
+    action.sa_handler = handler;
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = 0;
+
+    return sigaction(signal, &action, 0);
 }
 
 void

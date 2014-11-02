@@ -29,7 +29,7 @@ recv_and_display_all_files(int client_socket, int num_of_files){
     while( count <= num_of_files ){
         char_struct *data_recv = accept_data(client_socket);
         if(data_recv->size != 0){
-            printf("Received: %s\n", data_recv->data);
+            printf("%d. %s\n", count, data_recv->data);
         }
         free_data_recv(data_recv);
         count++;
@@ -70,7 +70,7 @@ main(){
 
     recv_and_display_all_files(client_socket, num_of_files);
 
-//    say(client_socket, "This is a message sent from client ...");
+    say(client_socket, "This is a message sent from client ...");
 
     close(client_socket);
     free((void *)remote_sockaddr);
