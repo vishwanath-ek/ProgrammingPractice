@@ -34,6 +34,16 @@ get_directory_listing(const char *path){
     return;
 }
 
+int
+get_num_of_files(){
+    int index = 0;
+    while( index < 513 && files[index] != NULL ){
+//      printf("index: %d, %s\n", index, files[index]);
+        index++;
+    }
+    return index;
+}
+
 int 
 main(){
     int parent_socket = socket(PF_INET, SOCK_STREAM, 0);
@@ -71,13 +81,9 @@ main(){
         if( !fork() ){
             close(parent_socket);
             say(child_socket, "Hi, You are connected ... Please enter the file path ...");
-            get_directory_listing("/home/vishwanath/Documents");
-            int index = 0;
-            while( index < 513 && files[index] != NULL ){
-//                printf("index: %d, %s\n", index, files[index]);
-                index++;
-            }
 
+            get_directory_listing("/home/vishwanath/Documents");
+            int index = get_num_of_files();
             char char_num_files[4];
             sprintf(char_num_files,"%d", index);
             char_num_files[3]='\0'; 
@@ -88,9 +94,8 @@ main(){
             if(data_recv->size != 0){
                 printf("Data Got from client: %s\n",data_recv->data);
             }
-            if( data_recv ){
-                free((void *)data_recv);
-            }
+            free_data_recv(data_recv);
+
             close(child_socket);
             exit(0);
         }
