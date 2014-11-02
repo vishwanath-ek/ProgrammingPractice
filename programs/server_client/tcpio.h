@@ -6,4 +6,5 @@ typedef struct {
 int say(int , const char *);
 char_struct *accept_data(int);
 void error( const char *);
+void free_data_recv(void *);
 

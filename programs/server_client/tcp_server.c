@@ -5,7 +5,34 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <dirent.h> // For directory listing
 #include "tcpio.h"
+
+static char *files[512]; //Considering only 512 files are there ...
+
+void
+get_directory_listing(const char *path){
+    DIR *dir;
+    struct dirent *ent;
+    int index = 0;
+    if ( (dir = opendir(path)) != NULL ){
+          /* print all the files and directories within directory */
+        while ( (ent = readdir(dir)) != NULL ){
+            //printf ("%s\n", ent->d_name);
+            if( index <= 512 ){
+                if( !strchr(ent->d_name, '~') && strncmp(ent->d_name, ".", 1) && strncmp(ent->d_name, "..", 2) ){
+                    files[index++] = ent->d_name;
+                }
+            }
+        }
+        closedir (dir);
+    }else{
+          /* could not open directory */
+        error ("Directory Open Error");
+    }
+
+    return;
+}
 
 int 
 main(){
@@ -44,6 +71,19 @@ main(){
         if( !fork() ){
             close(parent_socket);
             say(child_socket, "Hi, You are connected ... Please enter the file path ...");
+            get_directory_listing("/home/vishwanath/Documents");
+            int index = 0;
+            while( index < 513 && files[index] != NULL ){
+//                printf("index: %d, %s\n", index, files[index]);
+                index++;
+            }
+
+            char char_num_files[4];
+            sprintf(char_num_files,"%d", index);
+            char_num_files[3]='\0'; 
+
+            say(child_socket, char_num_files);
+
             char_struct *data_recv = accept_data(child_socket);
             if(data_recv->size != 0){
                 printf("Data Got from client: %s\n",data_recv->data);

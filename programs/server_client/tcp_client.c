@@ -37,14 +37,16 @@ main(){
         error("Connect Error");
     }
     char_struct *data_recv = accept_data(client_socket);
-    if(data_recv->size != 0){
+    if(data_recv->data[data_recv->size] == '\0'){
         printf("Data received from server: %s\n",data_recv->data);
     }
+    free_data_recv(data_recv);
+
+    data_recv = accept_data(client_socket);
+    free_data_recv(data_recv);
+//    printf("Size: %d, Number of files received from server: %d\n", data_recv->size, atoi(data_recv->data)); 
     say(client_socket, "This is a message sent from client ...");
     close(client_socket);
-    if(data_recv){
-        free((void *)data_recv);
-    }
     free((void *)remote_sockaddr);
 
     return 0;

@@ -41,3 +41,10 @@ accept_data(int child_socket){
     return data_recv;
 }
 
+void
+free_data_recv(void *data){
+    if( data != NULL ){
+        free(data);
+    }
+    return;
+}
