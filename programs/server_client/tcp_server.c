@@ -49,7 +49,8 @@ get_directory_listing(const char *path){
             if( index < 512 ){
           //      if( !strchr(ent->d_name, '~') && strncmp(ent->d_name, ".", 1) && strncmp(ent->d_name, "..", 2) ){
                 if( is_regular_file(ent->d_name) ){
-                    files[index] = (char *)malloc(strlen(ent->d_name)*sizeof(char));
+                    files[index] = (char *)malloc(strlen(ent->d_name)*sizeof(char) + 1);
+                    memset(files[index], 0, strlen(ent->d_name)*sizeof(char) + 1);
                     strncpy(files[index], ent->d_name, strlen(ent->d_name));
                     index++;
                 }
@@ -67,7 +68,7 @@ get_directory_listing(const char *path){
 static int
 get_num_of_files(){
     int index = 0;
-    while( index < 513 && files[index] != NULL ){
+    while( index < 512 && files[index] != NULL ){
 //        printf("index: %d, %s\n", index, files[index]);
         index++;
     }
@@ -78,8 +79,11 @@ static void
 send_all_files(int child_socket, int num_of_sends){
     int count = 0;
 //    int fin_flag = 0;
+    printf("Send all files num_of_sends %d\n", num_of_sends);
     while( count < num_of_sends ){
-        printf("sending %s...\n", files[count]);
+        if( files[count] ){
+            printf("sending %s...\n", files[count]);
+        }
         say(child_socket, files[count]);
         free((void *)files[count]);
         count++;
@@ -155,6 +159,7 @@ main(){
             exit(0);
         }
         close(child_socket);
+        exit(0);
     }
 
     return 0;

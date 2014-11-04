@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include "tcpio.h"
 #include <unistd.h>
-
+#include <string.h>
 /* Bind the server remote port to the socket for connect ...
  * Need to know the server IP address and PORT to connec to.
  */
@@ -70,7 +70,14 @@ main(){
 
     recv_and_display_all_files(client_socket, num_of_files);
 
-    say(client_socket, "This is a message sent from client ...");
+    puts("\nPlease enter a file name from the above list:");
+    char *file_name = (char *)malloc(sizeof(char)*50);
+    bzero(file_name,sizeof(char)*50);
+    fgets(file_name, sizeof(char)*50, stdin);
+    file_name[strlen(file_name)-1]='\0';
+    printf("Entered file name: %s\n", file_name);
+    say(client_socket, file_name);
+    free_data_recv(file_name);
 
     close(client_socket);
     free((void *)remote_sockaddr);
