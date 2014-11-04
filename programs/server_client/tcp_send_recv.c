@@ -42,6 +42,15 @@ accept_data(int child_socket){
     return data_recv;
 }
 
+char *
+get_full_path(char *full_path, const char *file_name){
+    bzero(full_path, sizeof(*full_path));
+    strncat(full_path, SHARE_FILES_PATH, sizeof(SHARE_FILES_PATH));
+    strncat(full_path, file_name, strlen(file_name));
+
+    return full_path;
+}
+
 // Function to register handler(func passed) to OS
 int
 catch_signal(int signal, void (*handler)(int)){

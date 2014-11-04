@@ -10,7 +10,7 @@
 #include <sys/stat.h> // For getting file info using stat function
 #include <signal.h>
 
-static char *files[512]; //Considering only 512 files are there ...
+static char *files[NUM_OF_FILES]; //Considering only 512 files are there in tcpio.h ...
 
 static void
 sigint_handler(void){
@@ -22,10 +22,8 @@ static int
 is_regular_file(const char *file_name){
     struct stat info;
     char full_path[500];
-    bzero(full_path, sizeof(full_path));
-    strncat(full_path, SHARE_FILES_PATH, sizeof(SHARE_FILES_PATH));
-    strncat(full_path, file_name, strlen(file_name));
 
+    get_full_path(full_path, file_name);
     if( stat(full_path, &info) ){
         error("STAT error");
     }
@@ -46,7 +44,7 @@ get_directory_listing(const char *path){
           /* traverse all the files and directories within directory */
         while ( (ent = readdir(dir)) != NULL ){
             //printf ("%s\n", ent->d_name);
-            if( index < 512 ){
+            if( index < NUM_OF_FILES ){
           //      if( !strchr(ent->d_name, '~') && strncmp(ent->d_name, ".", 1) && strncmp(ent->d_name, "..", 2) ){
                 if( is_regular_file(ent->d_name) ){
                     files[index] = (char *)malloc(strlen(ent->d_name)*sizeof(char) + 1);
@@ -68,7 +66,7 @@ get_directory_listing(const char *path){
 static int
 get_num_of_files(){
     int index = 0;
-    while( index < 512 && files[index] != NULL ){
+    while( index < NUM_OF_FILES && files[index] != NULL ){
 //        printf("index: %d, %s\n", index, files[index]);
         index++;
     }
@@ -85,12 +83,31 @@ send_all_files(int child_socket, int num_of_sends){
             printf("sending %s...\n", files[count]);
         }
         say(child_socket, files[count]);
-        free((void *)files[count]);
         count++;
         char_struct *data_recv = accept_data(child_socket);
         free_data_recv(data_recv);
     }
     return;
+}
+
+static unsigned int
+check_file_present(char *file_name){
+    unsigned int index = 0;
+    while( index < NUM_OF_FILES && files[index] != NULL ){
+        if( strncmp(files[index], file_name, strlen(files[index])) == 0 ){
+            free((void *)files[index]);
+            return 1;
+        }
+        free((void *)files[index]);
+        index++;
+    }
+
+    return 0;
+}
+
+static void
+create_thread_read_file_transfer(char *file_name, int child_socket){
+    
 }
 
 int
@@ -152,14 +169,25 @@ main(){
             if(data_recv->size != 0){
                 printf("Data Got from client: %s\n",data_recv->data);
             }
+            char *file_name_recv = (char *)malloc(strlen(data_recv->data) + 1);
+            memset(file_name_recv, 0, strlen(data_recv->data) + 1);
+            strncpy(file_name_recv, data_recv->data, strlen(data_recv->data));
             free_data_recv(data_recv);
+
+            if( !check_file_present(file_name_recv) ){
+                fprintf(stderr,"Filename entered not present ...\n");
+                free_data_recv(file_name_recv);
+                exit(1);
+            }
+
+            create_thread_read_file_transfer(file_name_recv, child_socket); 
+            free_data_recv(file_name_recv);
 
             printf("Closing Child Socket ...\n");
             close(child_socket);
             exit(0);
         }
         close(child_socket);
-        exit(0);
     }
 
     return 0;
