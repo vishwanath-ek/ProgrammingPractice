@@ -13,6 +13,9 @@
 /* Bind the server remote port to the socket for connect ...
  * Need to know the server IP address and PORT to connec to.
  */
+#define FILE_NOT_EXIST "WRONG FILE NAME"
+#define END_OF_TRANSFER "!@FINISHED TRANSFER@!"
+
 static struct sockaddr_in *
 use_direct_bind_ip(){
     struct sockaddr_in *client_sockaddr = (struct sockaddr_in *)malloc(sizeof(struct sockaddr_in));
@@ -36,6 +39,22 @@ recv_and_display_all_files(int client_socket, int num_of_files){
         say(client_socket, "Send next");
     }
     return;
+}
+
+void
+recv_data_from_server(int client_socket, FILE *fd){
+
+    char_struct *data_recv = NULL;
+    while(1){
+        data_recv = accept_data(client_socket);
+        if(!strncmp(data_recv->data, END_OF_TRANSFER, strlen(END_OF_TRANSFER))){
+            puts("File Transfer Ended... \n");
+            return;
+        }
+        fprintf(fd, "%s", data_recv->data);
+        free_data_recv(data_recv);
+        say(client_socket, "Data received");
+    }
 }
 
 int
@@ -79,6 +98,24 @@ main(){
     say(client_socket, file_name);
     free_data_recv(file_name);
 
+    data_recv = accept_data(client_socket);
+    if(!strncmp(data_recv->data, FILE_NOT_EXIST, strlen(FILE_NOT_EXIST))){
+        fprintf(stderr,"File name entered was wrong. Please try again ...\n");
+        free_data_recv(data_recv);
+        exit(1);
+    }
+
+    FILE *fd = fopen(data_recv->data, "w+");
+    if(!fd){
+        free_data_recv(data_recv);
+        error("File open error.");
+    }
+
+    say(client_socket, "Data received");
+    recv_data_from_server(client_socket, fd);
+
+    free_data_recv(data_recv);
+    fclose(fd);
     close(client_socket);
     free((void *)remote_sockaddr);
 

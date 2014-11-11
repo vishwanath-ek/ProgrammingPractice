@@ -9,13 +9,22 @@
 #include "tcpio.h"
 #include <sys/stat.h> // For getting file info using stat function
 #include <signal.h>
+#include <pthread.h>
 
 static char *files[NUM_OF_FILES]; //Considering only 512 files are there in tcpio.h ...
+static char filedata_buffer[512];
+short read_flag = 0;
+short null_flag = 0;
+short continue_flag = 1;
+
+pthread_mutex_t buffer_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t buffer_read_cond = PTHREAD_COND_INITIALIZER;
+pthread_cond_t buffer_write_cond = PTHREAD_COND_INITIALIZER;
 
 static void
 sigint_handler(void){
-    printf("Caught sigint\n");
-    exit(1);
+    printf("Caught sigint...\nSetting main func. break\n");
+    continue_flag = 0;
 }
 
 static int
@@ -105,9 +114,85 @@ check_file_present(char *file_name){
     return 0;
 }
 
+static void *
+thread_read(void *arg){ 
+    const char *file_name = (const char *)arg;
+    fprintf(stdout, "Filename received is %s\n",file_name);
+    char *file_path = (char *)malloc(512 * sizeof(char));
+    file_path = get_full_path(file_path, file_name);
+    FILE *fd = fopen(file_path,"r");
+    if( (fd) == NULL){
+        error("File open error");
+    }
+    while( 1 ){
+         pthread_mutex_lock(&buffer_mutex);
+         while( read_flag == 1 ){
+             pthread_cond_wait(&buffer_write_cond, &buffer_mutex);
+         }
+         if(fgets(filedata_buffer, sizeof(filedata_buffer), fd)){
+             read_flag = 1;
+             pthread_cond_signal(&buffer_read_cond);
+             fprintf(stdout, "!!!After Read!!!%s", filedata_buffer);
+         }else{
+             read_flag = 1;
+             null_flag = 1;
+             pthread_cond_signal(&buffer_read_cond);
+         }
+         pthread_mutex_unlock(&buffer_mutex);
+         if( null_flag ){
+             break;
+         }
+    }
+
+    free((void *)file_path);
+    fclose(fd);
+    fprintf(stdout, "Read thread exit\n");
+
+    pthread_exit((void *)1);
+}
+
+static void *
+thread_send(void *arg){
+    int child_socket = (int)arg;
+    while( 1 ){
+        pthread_mutex_lock(&buffer_mutex);
+        while( read_flag == 0 ){
+            if(null_flag){
+                pthread_mutex_unlock(&buffer_mutex);
+                break;
+            }
+            pthread_cond_wait(&buffer_read_cond, &buffer_mutex);
+        }
+        if(null_flag){
+            say(child_socket, "!@FINISHED TRANSFER@!");
+            pthread_mutex_unlock(&buffer_mutex);
+            break;
+        }
+        //fprintf(stdout, "***Instead of send***%s", filedata_buffer);
+        say(child_socket, (const char *)filedata_buffer);
+        free_data_recv(accept_data(child_socket));
+        read_flag = 0;
+        pthread_cond_signal(&buffer_write_cond);        
+        pthread_mutex_unlock(&buffer_mutex);
+    }
+    fprintf(stdout, "Send thread exit\n");
+
+    pthread_exit((void *)1);
+}
+
 static void
-create_thread_read_file_transfer(char *file_name, int child_socket){
-    
+create_thread_read_file_transfer(const char *file_name, int child_socket){
+    pthread_t thread_read_id;
+    pthread_t thread_read_send_id;
+
+    pthread_create(&thread_read_id, 0, thread_read, (void *)file_name);
+    pthread_create(&thread_read_send_id, 0, thread_send, (void *)child_socket);
+
+    void *result = NULL;
+    pthread_join(thread_read_id, &result);
+    pthread_join(thread_read_send_id, &result);
+
+    return;
 }
 
 int
@@ -141,11 +226,14 @@ main(){
 
     struct sockaddr_storage client_addr;
     unsigned int addr_len = sizeof(struct sockaddr_storage);
-    while(1){
+    while(continue_flag){
         puts("Waiting at accept system call ... Awaiting client requests ... ");
         int child_socket = accept(parent_socket, (struct sockaddr *)&client_addr, &addr_len);
-        if( child_socket == -1 ){
+        if( child_socket == -1 && continue_flag){
             error("Accept Error");
+        }
+        if(!continue_flag){
+            break;
         }
         if( !fork() ){
             close(parent_socket);
@@ -175,20 +263,31 @@ main(){
             free_data_recv(data_recv);
 
             if( !check_file_present(file_name_recv) ){
+                say(child_socket, "WRONG FILE NAME");
                 fprintf(stderr,"Filename entered not present ...\n");
                 free_data_recv(file_name_recv);
                 exit(1);
             }
 
+            say(child_socket, (const char *)file_name_recv);
+            free_data_recv(accept_data(child_socket));
             create_thread_read_file_transfer(file_name_recv, child_socket); 
             free_data_recv(file_name_recv);
 
             printf("Closing Child Socket ...\n");
+            pthread_mutex_destroy(&buffer_mutex);
+            pthread_cond_destroy(&buffer_read_cond);
+            pthread_cond_destroy(&buffer_write_cond);
             close(child_socket);
             exit(0);
         }
         close(child_socket);
     }
+    pthread_mutex_destroy(&buffer_mutex);
+    pthread_cond_destroy(&buffer_read_cond);
+    pthread_cond_destroy(&buffer_write_cond);
+
+    close(parent_socket);
 
     return 0;
 }
