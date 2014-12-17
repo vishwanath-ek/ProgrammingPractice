@@ -25,9 +25,8 @@ readFileAndMakeListOfAnagrams(std::map<std::string,
                 std::set<std::string> > &final_map,
                 std::ifstream &in){
     in.open(FILE_NAME.c_str());
-    while( !in.fail() && !in.eof() ){
-        std::string word;
-        in >> word;
+    std::string word;
+    while( !in.fail() && in >> word ){
         const std::string signature = getSignature(word);
         std::cout << signature <<std::endl;
     }
