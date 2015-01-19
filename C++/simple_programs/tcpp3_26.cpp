@@ -1,11 +1,11 @@
 #include <iostream>
 #include <cstdio>
+
 void
 func(void *ptr, int num_bytes, int value){
     char *char_ptr = static_cast<char *>(ptr);
     for(int i = 0; i < num_bytes; i++){
-        sprintf(&char_ptr[i], "%x", value);
-        printf("%d. %p: %x\n", i, &char_ptr[i], char_ptr[i]);
+        char_ptr[i] = value ; 
     }
 
     return;
@@ -24,7 +24,7 @@ int
 main(void){
     int arrayInt[]={ 10, 20, 30, 40, 50 };
     void *ptr = static_cast<void *>(arrayInt);
-    func(ptr, 8, 10);
+    func(ptr, 7, -1);
     std::cout << "Inside main: " << sizeof(arrayInt)/sizeof(arrayInt[0]) << std::endl;
     printArray(arrayInt, sizeof(arrayInt)/sizeof(arrayInt[0]));
     return 0;
