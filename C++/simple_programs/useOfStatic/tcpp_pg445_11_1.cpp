@@ -4,11 +4,11 @@
 using std::cout;
 using std::endl;
 
-int someInteger = 10;
-SimpleClass *simple = NULL; 
+void testFunc();
+int someInt = 10;
+SimpleClass simple(someInt);
 
 int main(){
-    simple = new SimpleClass(someInteger);
-    simple->print();
-    delete simple;
+    simple.print();
+    testFunc();
 }
