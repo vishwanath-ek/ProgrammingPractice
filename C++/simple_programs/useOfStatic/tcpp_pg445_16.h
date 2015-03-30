@@ -32,4 +32,13 @@ namespace ownNS {
     OwnNsClass ownNsObj;
 }
 
+namespace {
+    using std::cout;
+    using std::endl;
+
+    void func3(){
+        cout << "In func3 unnamed namespace." << endl;
+    }
+}
+
 #endif
