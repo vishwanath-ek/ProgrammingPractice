@@ -1,5 +1,7 @@
 #include <iostream>
-
+// NVRO is named value return optimization which may result in not calling
+// the copy constructor. Instead of creating a temporary object, it directly
+// assigns to the destination object.
 class SomeClass {
     int *someInt;
 
