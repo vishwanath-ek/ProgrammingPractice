@@ -27,9 +27,11 @@ class SortClass{
     private:
         int *arr;
         size_t sz;
+        void swap(size_t, size_t);
         size_t findMinIndex(size_t startPos);
         void selectionSortIterative();
         void selectionSortRecursive(size_t startPos);
+        void insertionSort();
 };
 
 #endif

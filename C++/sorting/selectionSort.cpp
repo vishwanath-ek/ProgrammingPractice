@@ -10,9 +10,7 @@ void SortClass::selectionSortIterative(){
                 min = j;
             }
         }
-        int tempVar = arr[min];
-        arr[min] = arr[i];
-        arr[i] = tempVar;
+        swap(min, i);
     }
 }
 
