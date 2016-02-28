@@ -32,6 +32,8 @@ class SortClass{
         void selectionSortIterative();
         void selectionSortRecursive(size_t startPos);
         void insertionSort();
+        void merge(size_t, size_t, size_t, size_t);
+        void mergeSort(size_t startPos, size_t endPos);
 };
 
 #endif

@@ -11,6 +11,8 @@ void SortClass::sort(const std::string &type){
         SortClass::selectionSortRecursive(0);
     } else if ( type == "insertion" ){
         SortClass::insertionSort();
+    } else if ( type == "merge" ){
+        SortClass::mergeSort(0, sz - 1);
     }
 }
 
@@ -22,16 +24,16 @@ void SortClass::swap(size_t i, size_t j){
 }
 
 int main(){
-    int *arr = new int[5]();
-    for(int i = 0; i <= 4; i++){
-        arr[i] = 4-i;
+    int *arr = new int[10];
+    for(int i = 0; i <= 9; i++){
+        arr[i] = 9-i;
     }
 
-    SortClass desc(arr, 5);
+    SortClass desc(arr, 10);
     cout << "--- BEFORE SORT ---" << endl;
     desc.print();
     cout << "--- AFTER SORT ---" << endl;
-    desc.sort("insertion");
+    desc.sort("merge");
     desc.print();
 
     return 0;
