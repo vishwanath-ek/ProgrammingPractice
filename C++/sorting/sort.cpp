@@ -31,12 +31,12 @@ void SortClass::swap(int i, int j){
 int main(){
     srand(time(NULL));
     int *arr = new int[10];
-//    for(int i = 0; i <= 9; i++){
-//        arr[i] = rand()%100;
-//    }
+    for(int i = 0; i <= 9; i++){
+        arr[i] = rand()%100;
+    }
 //    72 83 72 90 95 56 19 34 97 91 
-    arr[0] = 72; arr[1] = 83; arr[2] = 72; arr[3] = 98 ; arr[4] = 95;
-    arr[5] = 56; arr[6] = 19; arr[7] = 34; arr[8] = 97; arr[9] = 91; 
+//    arr[0] = 72; arr[1] = 83; arr[2] = 72; arr[3] = 98 ; arr[4] = 95;
+//    arr[5] = 56; arr[6] = 19; arr[7] = 34; arr[8] = 97; arr[9] = 91; 
 
 //    92 25 1 100 2 0
 //    arr[0] = 92; arr[1] = 25; arr[2] = 1; arr[3] = 100 ; arr[4] = 2;
