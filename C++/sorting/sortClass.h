@@ -6,7 +6,7 @@ using std::cout; using std::endl;
 
 class SortClass{
     public:
-        SortClass(int* arrPtr, size_t size): arr(NULL), sz(size){
+        SortClass(int* arrPtr, int size): arr(NULL), sz(size){
             arr = arrPtr;
         }
 
@@ -16,24 +16,28 @@ class SortClass{
         }
 
         void print(){
-            for(size_t x = 0; x < sz; x++){
+            for(int x = 0; x < sz; x++){
                 cout << arr[x] << " ";
             }
             cout << endl;
         }
 
-        void sort(const std::string& = "selection");
+        void sort(const std::string& = "selection", int pos = 0);
 
     private:
         int *arr;
-        size_t sz;
-        void swap(size_t, size_t);
-        size_t findMinIndex(size_t startPos);
+        int sz;
+        void swap(int, int);
+        int findMinIndex(int startPos);
         void selectionSortIterative();
-        void selectionSortRecursive(size_t startPos);
+        void selectionSortRecursive(int startPos);
         void insertionSort();
-        void merge(size_t, size_t, size_t, size_t);
-        void mergeSort(size_t startPos, size_t endPos);
+        void merge(int, int, int, int);
+        void mergeSort(int startPos, int endPos);
+        int partition(int pivotPos, int startPos, int endPos);
+        void quickSort(int startPos, int endPos);
+        void quickSelect(int pos, int startPos, int endPos);
+
 };
 
 #endif

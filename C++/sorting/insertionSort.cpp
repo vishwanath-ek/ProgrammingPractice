@@ -4,7 +4,7 @@ using std::cout; using std::endl;
 using std::cerr;
 
 void SortClass::insertionSort(){
-    size_t i;
+    int i;
     for( i = 0; i < sz; i++ ){
         int j = i;
         int tempi = i;
