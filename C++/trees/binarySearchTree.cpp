@@ -23,6 +23,9 @@ class BinarySearchTree {
         void postOrderTraversal();
 
     private:
+        Node<T> *getSuccessor();
+        Node<T> *getPredecessor();
+        Node<T> *getParent(T obj);
         void inOrderTraverse(Node<T> *node);
         void postOrderTraverse(Node<T> *node);
         Node<T> *insert(Node<T> *node,T obj, const bool &createNode = true, bool& exists = false);
@@ -104,7 +107,70 @@ void BinarySearchTree<T>::add(T obj){
 }
 
 template<typename T>
+Node<T> *BinarySearchTree<T>::getSuccessor(){
+    Node<T> *tempNode = root->getRight();
+    while(tempNode != NULL){
+        tempNode = tempNode->getLeft();
+    }
+    return tempNode;
+}
+
+template<typename T>
+Node<T> *BinarySearchTree<T>::getPredecessor(){
+    Node<T> *tempNode = root->getLeft();
+    while(tempNode != NULL){
+        tempNode = tempNode->getRight();
+    }
+    return tempNode;
+}
+
+template<typename T>
+Node<T> *BinarySearchTree<T>::getParent(T obj){
+    // Leaf, with one child, with two children.
+    Node<T> *tempNode = NULL;
+    Node<T> *tempNodeParent = root;
+    Node<T> *leftNode = NULL;
+    Node><T> *rightNode = NULL;
+    if( root->getData() < obj ){
+        tempNode = root->getRight();
+    } else {
+        tempNode = root->getLeft();
+    }
+
+    while( tempNode && tempNode->getData() != obj ){
+        tempNodeParent = tempNode;
+        if( tempNode->getData() < obj ){
+            tempNode = tempNode->getRight();
+        } else {
+            tempNode = tempNode->getLeft();
+        }
+    }
+
+    return tempNodeParent;
+}
+
+template<typename T>
 T BinarySearchTree<T>::del(T obj){
+    bool exists = checkExists(obj);
+    if ( !exists ){
+        cerr << "Key doesnt exist." << endl;
+        return std::string();
+    }
+
+    if( root->getData() == obj ){
+        T temp = root->getData();
+        Node<T> *successor = getSuccessor();
+        if( successor ){
+            
+        } else{
+            Node<T> *predecessor = getPredecessor();
+            if( pre)
+        }
+        delete root;
+        return temp;
+    }
+
+    
 }
 
 template<typename T>
