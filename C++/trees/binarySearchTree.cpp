@@ -21,6 +21,7 @@ class BinarySearchTree {
         bool checkExists(T obj);
         void inOrderTraversal();
         void postOrderTraversal();
+        T getRootData(){ return root->getData(); }
 
     private:
         Node<T> *getSuccessor();
@@ -109,7 +110,7 @@ void BinarySearchTree<T>::add(T obj){
 template<typename T>
 Node<T> *BinarySearchTree<T>::getSuccessor(){
     Node<T> *tempNode = root->getRight();
-    while(tempNode != NULL){
+    while(tempNode->getLeft() != NULL){
         tempNode = tempNode->getLeft();
     }
     return tempNode;
@@ -118,7 +119,7 @@ Node<T> *BinarySearchTree<T>::getSuccessor(){
 template<typename T>
 Node<T> *BinarySearchTree<T>::getPredecessor(){
     Node<T> *tempNode = root->getLeft();
-    while(tempNode != NULL){
+    while(tempNode->getRight() != NULL){
         tempNode = tempNode->getRight();
     }
     return tempNode;
@@ -126,11 +127,8 @@ Node<T> *BinarySearchTree<T>::getPredecessor(){
 
 template<typename T>
 Node<T> *BinarySearchTree<T>::getParent(T obj){
-    // Leaf, with one child, with two children.
     Node<T> *tempNode = NULL;
     Node<T> *tempNodeParent = root;
-    Node<T> *leftNode = NULL;
-    Node><T> *rightNode = NULL;
     if( root->getData() < obj ){
         tempNode = root->getRight();
     } else {
@@ -157,20 +155,37 @@ T BinarySearchTree<T>::del(T obj){
         return std::string();
     }
 
+    T temp = root->getData();
+    // Delete root
     if( root->getData() == obj ){
-        T temp = root->getData();
+        Node<T> *newRoot = NULL;
         Node<T> *successor = getSuccessor();
+        Node<T> *predecessor = getPredecessor();
         if( successor ){
-            
-        } else{
-            Node<T> *predecessor = getPredecessor();
-            if( pre)
+            // Set parent of successors left child to successor's right child
+            Node<T> *parentSuccessor = getParent(successor->getData());
+            Node<T> *rightChildSuccessor = successor->getRight();
+            newRoot = successor;
+            parentSuccessor->setRight(rightChildSuccessor);
+        } else if (predecessor) {
+            // Set parent of predecessors right child to predecessor's left child 
+            Node<T> *parentPredecessor = getParent(predecessor->getData());
+            Node<T> *leftChildPredecessor = predecessor->getLeft();
+            newRoot = predecessor;
+            parentPredecessor->setRight(leftChildPredecessor);
         }
-        delete root;
-        return temp;
-    }
 
-    
+        if( successor || predecessor ){
+            newRoot->setRight(root->getRight());
+            newRoot->setLeft(root->getLeft());
+        }
+
+        root->setLeft(NULL);
+        root->setRight(NULL);
+        delete root;
+        root = newRoot;
+    }
+    return temp;
 }
 
 template<typename T>
@@ -185,7 +200,7 @@ bool BinarySearchTree<T>::checkExists(T obj){
 
 int main(){
     BinarySearchTree<std::string> binTree;
-    std::string allLetters = "ABCDEFGHIJKL";
+    std::string allLetters = "FBGADICEH";
     std::string emptyString;
     std::string::const_iterator it = allLetters.begin();
     for(; it != allLetters.end(); it++){
@@ -199,7 +214,14 @@ int main(){
 
     cout << "Existance of E: " << std::boolalpha << binTree.checkExists("E") << endl;
     cout << "Existance of Z: " << std::boolalpha << binTree.checkExists("Z") << endl;
-   
-     
+
+    cout << "-------- Delete root F ------" << endl;
+    binTree.del("F" + emptyString);
+    cout << "New Root: " << binTree.getRootData() << endl;
+    cout << "--- In Order traversal ---" << endl;
+    binTree.inOrderTraversal();
+    cout << "--- Post Order Traversal ---" << endl;
+    binTree.postOrderTraversal();
+
     return 0;
 }
