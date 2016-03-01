@@ -1,5 +1,5 @@
 #include <cstdio>
-#define NDEBUG
+//#define NDEBUG
 #include <cassert>
 
 int
