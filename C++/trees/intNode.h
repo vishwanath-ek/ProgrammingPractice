@@ -3,7 +3,9 @@
 #include <climits>
 class Node {
     public:
-        Node(): data(INT_MIN), left(NULL), right(NULL){
+        Node(): key(INT_MIN), left(NULL), right(NULL){
+        }
+        Node(int k): key(k), left(NULL), right(NULL){
         }
         ~Node(){
             if ( !left ) {
@@ -15,7 +17,7 @@ class Node {
         }
 
         int getData() {
-            return data;
+            return key;
         }
 
         Node *getLeft(){
@@ -35,7 +37,7 @@ class Node {
         }
 
     private:
-        int data;
+        int key;
         Node *left;
         Node *right;
 };
