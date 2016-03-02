@@ -19,11 +19,55 @@ class BinarySearchTree {
         bool checkExists(int key);
         int getSuccessor();
         int getPredecessor();
+        // Number of nodes in tree is size here
+        size_t getSize();
+        size_t getMaxDepth();
     private:
+        size_t calcSize(Node *node);
+        size_t getMaxDepth(Node *node);
         Node *insert(Node *node, int key);
         void inorderTraverse(Node *node);
         Node *root;
 };
+
+size_t BinarySearchTree::getMaxDepth(Node *node) {
+    if ( !node ){
+        return 0;
+    }
+
+    size_t leftDepth = getMaxDepth(node->getLeft());
+    size_t rightDepth = getMaxDepth(node->getRight());
+
+    //return std::max(leftDepth, rightDepth);
+    return (leftDepth > rightDepth) ? (leftDepth + 1): (rightDepth + 1);  
+}
+
+size_t BinarySearchTree::getMaxDepth() {
+    if (!root){
+        return 0;
+    }
+
+    return getMaxDepth(root);
+}
+
+size_t BinarySearchTree::calcSize(Node *node){
+    if (node == NULL){
+        return 0;
+    }
+
+    size_t sizeLeft = calcSize(node->getLeft());
+    size_t sizeRight = calcSize(node->getRight());
+
+    return (sizeLeft + sizeRight + 1);
+}
+
+size_t BinarySearchTree::getSize(){
+    if( !root ){
+        return 0;
+    }
+    size_t size = calcSize(root);
+    return size;
+}
 
 int BinarySearchTree::getSuccessor(){
     if( !root ) {
@@ -150,5 +194,7 @@ int main(){
     cout << "Predecessor: " << binTree.getPredecessor() << endl;
     cout << "Successor: " << binTree.getSuccessor() << endl;
 
+    cout << "Size:" << binTree.getSize() << endl;
+    cout << "Max Depth: " << binTree.getMaxDepth() << endl;
     return 0;
 }
