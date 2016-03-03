@@ -29,5 +29,7 @@ int main(int argc, char **argv) {
         printf("%d: %s\n",i , newArgvCopied[i]);
     }
 
+    free(newArgvCopied);
+
     return 0; 
 }
