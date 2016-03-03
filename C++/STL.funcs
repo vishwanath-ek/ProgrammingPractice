@@ -1,0 +1,163 @@
+Containers:
+empty()         : check container is empty;
+size()          : Number of elements in container;
+Copy Constructor: std::vector<int> vect2(vect1);
+clear()         : removes all items in vector after which size = 0;
+vec2.swap(vec3) : Swaps contents between two containers;
+
+
+--------------------- Sequential Containers --------------------------
+DO NOT HAVE find MEMBER FUNCTION as it takes O(n) time.
+
+vector:
+    size()
+    .at() = check bounds
+    [i] = no bound check
+    use iterator for traversing a container
+    Vector = contiguous memory allocations
+    You can use pointer from starting location of vector int *p = &vector[0]
+    Add remove in begin or middle is slow as we need to move items.
+
+deque:
+    Unlike vector this grows both at end and begin
+    push_front();
+    push_back();
+    deq[i]
+    Insert and remove in middle is slow.
+    Search is slow;
+
+list:
+    Doubly ended linked list.
+    Fast insert and remove at any place in list
+    push_back();
+    push_front();
+    Remove in any place is fast O(1);
+    Slow search and No RANDOM ACCESS [] and since not contiguous / no caching.
+    std::list<int>::iterator itr = find(myList.begin(), myList.end(), value);
+    myList.insert(itr, 8); // {4 5 8 2 9 6} after insert
+    itr++;
+    // itr now points to 9
+    myList.erase(itr) // { 4 5 8 2 6 } // very fast
+
+    List has: splice => myList1.splice(itr, myList2, itr_a, itr_b);
+    // myList1 from itr contains all elements from myList2 starting itr_a - itr_b
+
+
+forward list:
+    Singly linked list forward pointer, similar to list traverse from begin to end.
+
+
+
+Array container:
+array<int, 3> = size cannot be changed.
+//if a func takes array of 3 elements it wont take array of 4.
+// i.e. size is linked to type.
+
+
+
+
+-------------- Associative Containers -------------------
+Made using BST. Always Sorted by default operator < .
+
+
+Set:
+    Insertion takes O(log n)
+    set<int>::iterator it = mySet.find(7); // O(log n) time search
+    Example of insert into set {1, 3, 7}:
+    //use "std" appropriate places:
+    pair<set<int>::iterator, bool> ret;
+    ret = myset.insert(3); // no new elements added as duplicate.
+    if(ret.second == false){
+        it = ret.first; // Points to first 3
+    }
+    myset.insert(it, 9); // Position not decided by you. 9 inserted at end.
+    // iterator still points to 3.
+    // iterator just provies hint for insert.
+    erase: myset.erase(it) // removes 3;
+            myset.erase(7) // also works
+
+   // Values in set are read-only. Elements cannot be modified as set is ordered.
+   // NONE OF SEQUENTIAL CONTAINERS PROVIDE ABOVE ERASE. its too slow.
+   // Traversing is slow as bst
+
+
+Map:
+    // KEYS CANNOT BE MODIFIED;
+    map<char, int> mymap;
+    mymap.insert(pair<char, int>('a', 100));
+    mymap.insert(make_pair('z', 200));
+    // map also for insert takes iterator as hint
+    mymap.insert(itr, pair<char, int>('b', 300));
+    it = mymap.find('z'); // O(log n)
+    for( it = begin() to end(); it++){
+        it->first or it->second;
+        (*it).first or (*it).second;
+    }
+
+.find() for associative containers will return iterator to that item
+or end() of container;
+
+
+
+
+---------------- UNORDERED -------------
+Unordered set:
+//USES HASH TABLE
+unordered_set<string> myset = {"red", "green", "blue"};
+unordered_set<string>::const_iterator itr = myset.find("green");
+if(itr != myset.end()){
+    cout << *itr << endl;
+}
+myset.insert(vector.begin(), vector.end());
+myset.load_factor(); // total number of elements / buckets.
+
+
+- map and unordered map:
+day['w'] = "wednesday"; // Inserts even though duplicate
+day.insert(make_pair(...)) // WILL FAIL !!!
+
+void foo( const unordered_map<char, string> &myMap ){
+    //myMap['s'] will fail as it opens write.
+    // even cout << myMap['s'] will fail.
+    // use find() check not end then use (*itr).first
+}
+
+// unordered_map provided O(1) provided hash collisions are less.
+// map provides guaranteed O(log n)
+
+
+
+
+-------------------- CONTAINER ADAPTOR -------------------------
+- Implemented with fundamental container classes with some restrictions
+ for special needs.
+
+Stack:
+    push(), pop(), top();
+Queue:
+    push(), pop(), front();
+
+Priority Queue: Highest priority on top.
+    push(), pop(), top() 
+
+
+------------------------ ITERATORS ----------------------
+const_iterator
+iterator
+
+functions :
+    advance(itr, 5);
+    distance(itr1, itr2);
+
+---------------------- ALGORITHMS -------------------------
+* Algos always process ranges in [begin, end);
+{ 2, 4, 5, 1, 3, 9 }
+vector<int>::iterator itr = min_element(vector.begin(), vector.end());
+sort(vect.begin(), itr); // doesnt include 1
+reverse(itr, vect.end()); //{.. ,9 3 1} Now itr points to 9;
+
+vector<int> vec2(3);// same size as 
+copy(itr, vec.end(), vec2.begin());
+
+
+, vec2.begin());

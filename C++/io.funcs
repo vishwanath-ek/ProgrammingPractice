@@ -1,0 +1,147 @@
+----------------- C++ ------------------
+Functions:
+size & length: both return same thing.
+capacity     : size of storage currently allocated.
+reserve      : say 100 chars will be allocated storage.
+                Doesnt change contents, only works on capacity.
+shrink_to_fit: Shrink capacity to hold the content.
+resize       : Change content, padded null default.
+               resize(12,'x'), 'x' will be padded.
+
+- at()   : throws out_of_range exception
+- []     : undefined behavior
+- front(): front char
+- back() : back char
+- push_back / pop_back
+Similar to vector it doesnt have push_front and pop_front;
+
+s1.append(...);
+s1.insert(startPos, stringToInsert, NumCharsToInsert);
+s1.replace(startPos, NumcharsToReplace, s2, startPos, numChars);
+s1.erase(startPos, numChars);
+
+s2.substring(startPos, numChars); // count startPos char as well
+
+s1 = "if a job is worth doing, its worth doing well";
+size_t found = s1.find("doing"); // found = 17
+found = s1.find("doing", 20); // find from 20 start Pos. found = 35
+
+found = s1.find_first_of("doing");// first character of s1 in doing.
+// found = 6 since 'o' in string is at 6 and doing has 'o'.
+
+find_last_of(...);
+
+
+
+s1.compare(s2); // > 0 is s1 > s2, < 0 if s1 < s2 else 0.
+// s1 > s2 is also ok.
+s1.compare(startPos, numChars, s2);
+
+
+------------------------ NON MEMBER FUNCS ----------------------
+cout << s1;
+cin >> s1; // line from std input and save in input.
+getline(cin, s1); // default delimiter '\n'
+getline(cin, s1, ';'); // delimiter is ';'
+
+Number to string:
+string s1 = to_string(8); // 8 into string COMPILER MIGHT COMPLAIN
+s1 = to_string(0xa4);
+
+s1 = "190";
+int i = stoi(s1);
+
+----------------------
+
+#include <string>
+
+s1 = "asdasdasd";
+int num = count(s1.begin(), s1.end(), 'e');
+num = count(begin(), end(), [](char c) { return (c < 'e')});
+
+//Consecutive
+itr = search_n(being(), end(), 2, 's'); // search for 2 consec 's'
+// Can use ints below instead of itr;
+s1.insert(itr, 3, 'x');
+s1.replace(itr, itr+3, 3, 'y'); // replacing substrings
+
+Algo functions:
+replace(s1.begin(), s1.end(), 'e', ' ') // replace chars
+is_permutation(s1.begin(), s1.end(), s2.begin());
+transform(s1.begin(), s1.end(), [](char c) { ... } );
+
+
+
+------------------- STREAM --------------------
+cout - global ostream object
+endl - '\n' + flush
+
+Stream - serial IO interface to external devices (file, stdin/stdout)
+ofstream of("MyLog.txt");
+of << endl;
+of << bitset<8>(14) << endl; // will write 00001110
+
+// IO operation:
+// formatting the data <-----> communicating the data with external devices.
+//  one module                  another module
+
+Mode of operation:
+ofstream of("MyLog.txt", ofstream::app );
+                         ofstream::in | ::out;
+                        ios::in | ios::out | ::app ::trunc
+of.seekp(10, ios::beg);
+of.seekp(-5, ios::end);
+of.seekp(-5, ios::cur);
+
+ifstream inf("MyLog.txt");
+int i;
+inf >> i;
+inf.good();
+if( !inf ) ==> !inf.fail();
+if(inf >> i)
+
+seekg(); tellp();
+seekp(); tellp();
+
+binary = ios::binary
+get put each char in binary;
+
+write((char *)&class, sizeof class) and read(&class, size of class)
+
+----------------------------------------
+buf[80];
+
+INPUT:
+inf.get(buf, 80) // Read upto 80 save it to buf
+inf.getline(buf, 80); // Read upto 80 or '\n'
+inf.read(buf, 20); // Read 20 chars
+inf.ignore(3);
+inf.peek(); // top of stream
+inf.unget(); // put back what you get()
+inf.putback('z');
+
+OUTPUT:
+ofstream of("MyLog.txt");
+of.put('c');
+of.write(buf, 6);
+of.flush();
+
+-------------------- STRING STREAM ------------------------
+stringstream ss; // Read / write of string
+ss << 89 << "Hex: " << hex << "Oct: " << oct << 89;
+cout << ss.str();
+
+int a;
+string s1;
+ss >> hex >> a; // Token by token all white spaces
+// a = 137;
+ss >> s1;
+// s1 - "Hex";
+ss >> dec >> b;
+
+ostringstream;
+istringstream;
+
+------------------------------------------------------
+
+
