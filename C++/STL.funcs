@@ -158,6 +158,3 @@ reverse(itr, vect.end()); //{.. ,9 3 1} Now itr points to 9;
 
 vector<int> vec2(3);// same size as 
 copy(itr, vec.end(), vec2.begin());
-
-
-, vec2.begin());
