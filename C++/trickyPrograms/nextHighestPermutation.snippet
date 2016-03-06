@@ -1,0 +1,26 @@
+void Solution::nextPermutation(vector<int> &A) {
+        // DO NOT write int main() function
+            int firstSortedOrder = -1;
+    for(size_t i = 0; i < A.size() - 1; i++){
+        if(A[i] < A[i+1]){
+            firstSortedOrder = i;
+          
+        }
+    }
+    if(firstSortedOrder == -1){
+        std::sort(A.begin(), A.end());
+        return;
+    }
+    
+    int lastSortedOrder = -1;
+    for(size_t i = A.size() - 1; i >= firstSortedOrder; i--){
+        if(A[firstSortedOrder] < A[i]){
+            lastSortedOrder = i;
+            break;
+        }
+    }
+    
+    std::swap(A[firstSortedOrder], A[lastSortedOrder]);
+    std::reverse(A.begin() + firstSortedOrder + 1, A.end());
+    return;
+}

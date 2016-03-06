@@ -1,0 +1,30 @@
+vector<vector<int> > Solution::generate(int A) {
+    if(!A){
+        vector<vector<int> > B;
+        return B;
+    }
+    std::vector<std::vector<int> > triangle;
+    int triangleIndex = 0;
+    int insideVectorIndex = 0;
+    --A;
+    std::vector<int> vectorOne;
+    vectorOne.push_back(1);
+    triangle.push_back(vectorOne);
+
+    while( A-- && A >= 0 ){
+        std::vector<std::vector<int> >::iterator triangleItr = triangle.end() - 1;
+        std::vector<int> triangleVectorBeforeEnd = *triangleItr;
+        int newSize = triangleVectorBeforeEnd.size();
+        std::vector<int> innerVectorNew;
+        for(int i = newSize; i >= 0; i--){
+            if( i == 0 || i == newSize ){
+                innerVectorNew.push_back(1);
+            } else {
+                int sum = triangleVectorBeforeEnd[i] + triangleVectorBeforeEnd[i - 1];
+                innerVectorNew.push_back(sum);
+            }
+        }
+        triangle.push_back(innerVectorNew);
+    }
+    return triangle;
+}
