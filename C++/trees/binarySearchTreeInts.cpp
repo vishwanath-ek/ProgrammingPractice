@@ -19,16 +19,129 @@ class BinarySearchTree {
         bool checkExists(int key);
         int getSuccessor();
         int getPredecessor();
+        void deleteNode(int key);
         // Number of nodes in tree is size here
         size_t getSize();
         size_t getMaxDepth();
     private:
+        Node *getParent(Node *);
+        Node *getSuccessorParent(Node *);
+        Node *getPredecessorParent(Node *);
+        Node *getDeleteNode(int key);
         size_t calcSize(Node *node);
         size_t getMaxDepth(Node *node);
         Node *insert(Node *node, int key);
         void inorderTraverse(Node *node);
         Node *root;
 };
+
+Node *BinarySearchTree::getParent(Node *child){
+    Node *parent = root;
+    while(parent){
+        if((parent->getData() < child->getData()) &&
+                parent->getRight() && parent->getRight() != child){
+            parent = parent->getRight();
+        } else if(parent->getLeft() && parent->getLeft() != child){
+            parent = parent->getLeft();
+        } else {
+            break;
+        }
+    }
+    return parent;
+}
+
+Node *BinarySearchTree::getPredecessorParent(Node *node){
+    Node *tempNode = node->getLeft();
+    while( tempNode && tempNode->getRight() && tempNode->getRight()->getRight()){
+        tempNode = tempNode->getRight();
+    }
+
+    return tempNode;
+}
+
+Node *BinarySearchTree::getSuccessorParent(Node *node){
+    Node *tempNode = node->getRight();
+    while(tempNode && tempNode->getLeft() && tempNode->getLeft()->getLeft()){
+        tempNode = tempNode->getLeft();
+    }
+
+    return tempNode;
+}
+
+Node *BinarySearchTree::getDeleteNode(int key) {
+    if(root->getData() == key){
+        return root;
+    }
+    Node *tempNode = root;
+    while (tempNode){
+        if (tempNode->getData() < key) {
+            tempNode = tempNode->getRight();
+        } else if (tempNode->getData() > key) {
+            tempNode = tempNode->getLeft();
+        } else {
+            break;
+        }
+    }
+
+    return tempNode;
+}
+
+void BinarySearchTree::deleteNode(int key){
+    if(!root){
+        cerr << "Root is null." << endl;
+        return;
+    }
+    if( !checkExists(key) ){
+        cerr << "Node doesnt exist in the tree." << endl;
+        return;
+    }
+
+    Node *deleteNode = getDeleteNode(key);
+    // Leaf Node
+    if( !deleteNode->getLeft() && !deleteNode->getRight() ){
+        Node *parent = getParent(deleteNode);
+        if(parent->getRight() == deleteNode){
+            parent->setRight(NULL);
+        } else {
+            parent->setLeft(NULL);
+        }
+        delete deleteNode;
+        return;
+    }
+
+    Node *predecessorParent = getPredecessorParent(deleteNode);
+    if( predecessorParent && predecessorParent->getRight() ){
+        deleteNode->setData(predecessorParent->getRight()->getData());
+        delete predecessorParent->getRight();
+        predecessorParent->setRight(NULL);
+        return;
+    } else if( predecessorParent ) {
+        // Draw this case and check
+        deleteNode->setData(predecessorParent->getData());
+        deleteNode->setLeft(predecessorParent->getLeft());
+        predecessorParent->setLeft(NULL);
+        delete predecessorParent;
+        return;
+    }
+
+    Node *successorParent = getSuccessorParent(deleteNode);
+    if( successorParent && successorParent->getLeft() ){
+        deleteNode->setData(successorParent->getLeft()->getData());
+        delete successorParent->getLeft();
+        successorParent->setLeft(NULL);
+        return;
+    } else if( successorParent ){
+        deleteNode->setData(successorParent->getData());
+        deleteNode->setRight(successorParent->getRight());
+        successorParent->setRight(NULL);
+        delete successorParent;
+        return;
+    }    
+
+    // If both predecessorParent and SucessorParent is NULL then root is deleted
+    delete root;
+    return;
+}
 
 size_t BinarySearchTree::getMaxDepth(Node *node) {
     if ( !node ){
@@ -196,5 +309,14 @@ int main(){
 
     cout << "Size:" << binTree.getSize() << endl;
     cout << "Max Depth: " << binTree.getMaxDepth() << endl;
+
+    binTree.deleteNode(9);
+    //binTree.deleteNode(4);
+    //binTree.deleteNode(2);
+    //binTree.deleteNode(5);
+    binTree.deleteNode(6);
+    cout << "--- Inorder Traversal ---" << endl;
+    binTree.inorderTraversal();
+
     return 0;
 }

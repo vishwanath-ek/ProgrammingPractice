@@ -20,6 +20,10 @@ class Node {
             return key;
         }
 
+        void setData(int key) {
+            this->key = key;
+        }
+
         Node *getLeft(){
             return left;
         }
