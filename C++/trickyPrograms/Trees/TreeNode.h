@@ -6,18 +6,19 @@ using std::cout; using std::endl;
 class Node {
     public:
         Node(int x): data(x), left(NULL), right(NULL) {}
-        ~Node(){
+/*        ~Node(){
             if(left){
-                cout << "Deleting Left: " << std::hex << left << " ";
+//                cout << "Deleting Left: " << std::hex << left << " ";
                 delete left;
             }
             left = NULL;
             if(right){
-                cout << "Deleting Right: " << std::hex << right << " ";
+//                cout << "Deleting Right: " << std::hex << right << " ";
                 delete right;
             }
             right = NULL;
         }
+        */
         int data;
         Node *left;
         Node *right;
